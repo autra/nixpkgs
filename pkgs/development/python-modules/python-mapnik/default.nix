@@ -3,6 +3,7 @@
   buildPythonPackage,
   fetchFromGitHub,
   substituteAll,
+  pybind11,
   isPyPy,
   python,
   setuptools,
@@ -29,14 +30,15 @@
 
 buildPythonPackage rec {
   pname = "python-mapnik";
-  version = "3.0.16-unstable-2024-02-22";
+  version = "4.0.0.beta";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "mapnik";
     repo = "python-mapnik";
-    rev = "5ab32f0209909cc98c26e1d86ce0c8ef29a9bf3d";
-    hash = "sha256-OqijA1WcyBcyWO8gntqp+xNIaV1Jqa0n1eMDip2OCvY=";
+    # chosen because
+    rev = "e25ea400e3e7945baaf5c3856143413ef969d315";
+    hash = "sha256-ukRwW9Ngx6KIyDixSiFdPk4k+LwOChLyVcBWcJ1OGGc=";
     # Only needed for test data
     fetchSubmodules = true;
   };
@@ -49,8 +51,7 @@ buildPythonPackage rec {
       libmapnik = "${mapnik}/lib";
     })
     # Use `std::optional` rather than `boost::optional`
-    # https://github.com/mapnik/python-mapnik/commit/e9f88a95a03dc081826a69da67bbec3e4cccd5eb
-    ./python-mapnik_std_optional.patch
+    # ./python-mapnik_std_optional.patch
   ];
 
   stdenv = if python.stdenv.hostPlatform.isDarwin then darwin.apple_sdk_11_0.stdenv else python.stdenv;
@@ -60,6 +61,13 @@ buildPythonPackage rec {
   nativeBuildInputs = [
     mapnik # for mapnik_config
     pkg-config
+  ];
+
+  buildInputs = [
+
+  pybind11
+  setuptools
+
   ];
 
   dependencies = [
