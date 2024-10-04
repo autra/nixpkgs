@@ -5,9 +5,11 @@
 , extraPythonPackages ? (ps: [ ])
 
 , libsForQt5
+
+, withGrass
 }:
 let
-  qgis-unwrapped = libsForQt5.callPackage ./unwrapped.nix {  };
+  qgis-unwrapped = libsForQt5.callPackage ./unwrapped.nix { withGrass = withGrass; };
 in symlinkJoin rec {
 
   inherit (qgis-unwrapped) version;
