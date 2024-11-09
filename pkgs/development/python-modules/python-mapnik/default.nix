@@ -30,15 +30,14 @@
 
 buildPythonPackage rec {
   pname = "python-mapnik";
-  version = "4.0.0.beta";
+  version = "4.0.3.beta";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "mapnik";
     repo = "python-mapnik";
-    # chosen because
-    rev = "e25ea400e3e7945baaf5c3856143413ef969d315";
-    hash = "sha256-ukRwW9Ngx6KIyDixSiFdPk4k+LwOChLyVcBWcJ1OGGc=";
+    rev = "10315a6d898ed341f5df5975395f3dc67814ebf6";
+    hash = "sha256-88muGSNf6kdSXiND6GH1tcjU4/Sf4IKt6CX+9bkT1EM=";
     # Only needed for test data
     fetchSubmodules = true;
   };
