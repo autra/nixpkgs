@@ -1,5 +1,6 @@
 {
   lib,
+zsh,
   stdenv,
   testers,
   buildPythonPackage,
@@ -32,6 +33,7 @@
   # python deps
   ## tools
   setuptools,
+  pip,
   build,
   pytest,
   ## dependencies
@@ -55,7 +57,7 @@ let
 in
 buildPythonPackage rec {
   pname = "ifcopenshell";
-  version = "0.8.0";
+  version = "0.8.3";
   pyproject = false;
 
   src = fetchFromGitHub {
@@ -63,22 +65,8 @@ buildPythonPackage rec {
     repo = "IfcOpenShell";
     tag = "ifcopenshell-python-${version}";
     fetchSubmodules = true;
-    hash = "sha256-tnj14lBEkUZNDM9J1sRhNA7OkWTWa5JPTSF8hui3q7k=";
+    hash = "sha256-cnPP/wq7ZwuzvQ9sKIlPshNpz1jnBaJUAfL3jOfW9co=";
   };
-
-  patches = [
-    (fetchpatch {
-      name = "ifcopenshell-boost-1.86-mt19937.patch";
-      url = "https://github.com/IfcOpenShell/IfcOpenShell/commit/1fe168d331123920eeb9a96e542fcc1453de57fe.patch";
-      hash = "sha256-oZDEL8cPcEu83lW+qSvCbmDGYpaNNRrptW9MLu2pN70=";
-    })
-
-    (fetchpatch {
-      name = "ifcopenshell-boost-1.86-json.patch";
-      url = "https://github.com/IfcOpenShell/IfcOpenShell/commit/88b861737c7c206d0e7307f90d37467e9585515c.patch";
-      hash = "sha256-zMoQcBWRdtavL0xdsr53SqyG6CZoeon8/mmJhrw85lc=";
-    })
-  ];
 
   nativeBuildInputs = [
     # c++
@@ -127,6 +115,7 @@ buildPythonPackage rec {
     xsdata
 
     pytestCheckHook
+    setuptools
   ];
 
   pythonImportsCheck = [ "ifcopenshell" ];
@@ -135,6 +124,7 @@ buildPythonPackage rec {
 
   # We still build with python to generate ifcopenshell_wrapper.py and ifcopenshell_wrapper.so
   cmakeFlags = [
+    "-DCMAKE_CXX_STANDARD=17"
     "-DUSERSPACE_PYTHON_PREFIX=ON"
     "-DBUILD_SHARED_LIBS=ON"
     "-DBUILD_IFCPYTHON=ON"
@@ -171,7 +161,14 @@ buildPythonPackage rec {
   '';
 
   preCheck = ''
+    # we need hashing enabled for activated the venv
+    set -h
     pushd ../../src/ifcopenshell-python
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install ../bcf --no-deps
+    pip install ../ifcpatch --no-deps
+    pip install .
     # let's test like done in .github/workflows/ci.yml
     # installing the python wrapper and the .so, both are needed to be able to test
     cp -v $out/${python.sitePackages}/ifcopenshell/ifcopenshell_wrapper.py ./ifcopenshell
@@ -188,7 +185,12 @@ buildPythonPackage rec {
   ];
 
   disabledTestPaths = [
-    "test/test_open.py"
+      # this is as submodule and they are not written to be executed elsewhere than from the root of this module
+      "ifcopenshell/simple_spf"
+      # https://github.com/IfcOpenShell/IfcOpenShell/issues/6974
+      "test/test_create_shape.py"
+      # https://github.com/IfcOpenShell/IfcOpenShell/issues/6976
+      "test/util/scripts/test_validate_stub.py"
   ];
 
   postCheck = ''
