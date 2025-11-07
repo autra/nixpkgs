@@ -29,6 +29,7 @@ zsh,
   opencollada,
   pcre,
   zlib,
+  ifcopenshell,
 
   # python deps
   ## tools
@@ -44,7 +45,6 @@ zsh,
   shapely,
   typing-extensions,
   ## additional deps for tests
-  ifcopenshell,
   lxml,
   mathutils,
   networkx,
@@ -56,7 +56,7 @@ let
   opencascade-occt = opencascade-occt_7_6;
 in
 buildPythonPackage rec {
-  pname = "ifcopenshell";
+  pname = "ifcopenshell-python";
   version = "0.8.3";
   pyproject = false;
 
@@ -65,7 +65,7 @@ buildPythonPackage rec {
     repo = "IfcOpenShell";
     tag = "ifcopenshell-python-${version}";
     fetchSubmodules = true;
-    hash = "sha256-cnPP/wq7ZwuzvQ9sKIlPshNpz1jnBaJUAfL3jOfW9co=";
+    hash = "sha256-obHHP1mz0pfYtZSycXL+GOvU17eecns4rDaqJvrC4ho=";
   };
 
   nativeBuildInputs = [
@@ -157,7 +157,14 @@ buildPythonPackage rec {
   '';
 
   preConfigure = ''
-    cd cmake
+    cd src/ifcwrap
+    echo "I?m here"
+    pwd
+    ls -al
+  '';
+
+  postBuild = ''
+    echo "Now it is time to build ifcopenshell python"
   '';
 
   preCheck = ''
